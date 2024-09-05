@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chat Room</title>
+        <link rel="stylesheet" href="/css/style.css" />
+    </head>
+    <body>
+        <nav style="display: flex; justify-content: center; gap: 20px;">
+            <a href="/login">Login</a>
+            <a href="/contactus">Contact Us</a>
+        </nav>
+        <h1>Chat Room</h1>
+
+        <div id="chat-box"></div>
+        <form id="message-form" action="/send-message" method="POST">
+            <input type="hidden" id="username" name="username" />
+            <label for="message">Message:</label>
+            <input type="text" id="message" name="message" required />
+            <button type="submit">Send</button>
+        </form>
+
+        <script>
+            const username = localStorage.getItem("username");
+            if (!username) {
+                window.location.href = "/login";
+            } else {
+                document.getElementById("username").value = username;
+                fetch("/messages")
+                    .then((response) => response.json())
+                    .then((messages) => {
+                        const chatBox = document.getElementById("chat-box");
+                        messages.forEach((msg) => {
+                            const msgDiv = document.createElement("div");
+                            msgDiv.textContent = `${msg.username}: ${msg.message}`;
+                            chatBox.appendChild(msgDiv);
+                        });
+                    });
+            }
+        </script>
+    </body>
+</html>
