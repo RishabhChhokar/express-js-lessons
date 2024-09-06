@@ -194,9 +194,12 @@
 
 import express from "express";
 import bodyParser from "body-parser";
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+
+import { getChatRoom, sendMessage, getMessages } from "./controllers/chatController.js";
+import { getLoginPage, login } from "./controllers/userController.js";
+import { getContactUs, submitContact, getSuccessPage } from "./controllers/contactController.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -207,54 +210,16 @@ const PORT = 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "login.html"));
-});
+app.get("/login", getLoginPage);
+app.post("/login", login);
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "index.html"));
-});
+app.get("/", getChatRoom);
+app.post("/send-message", sendMessage);
+app.get("/messages", getMessages);
 
-app.get("/contactus", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "contactus.html"));
-});
-
-app.get("/success", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "success.html"));
-});
-
-app.post("/submit-contact", (req, res) => {
-  const { name, email } = req.body;
-  const contactData = { name, email };
-
-  fs.appendFileSync("contacts.json", JSON.stringify(contactData) + "\n");
-
-  res.redirect("/success");
-});
-
-app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
-  res.redirect("/");
-});
-
-app.post("/send-message", (req, res) => {
-  const username = req.body.username;
-  const message = req.body.message;
-  const chatData = { username, message };
-
-  fs.appendFileSync("messages.json", JSON.stringify(chatData) + "\n");
-  res.redirect("/");
-});
-
-app.get("/messages", (req, res) => {
-  const messages = fs
-    .readFileSync("messages.json", "utf-8")
-    .trim()
-    .split("\n")
-    .map((line) => JSON.parse(line));
-  res.json(messages);
-});
+app.get("/contactus", getContactUs);
+app.post("/submit-contact", submitContact);
+app.get("/success", getSuccessPage);
 
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
