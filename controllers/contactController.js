@@ -1,4 +1,4 @@
-import fs from "fs";
+import { writeContact } from "../models/Contact.js";
 import path from "path";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
@@ -8,12 +8,11 @@ export const getContactUs = (req, res) => {
   res.sendFile(path.join(__dirname, "../views", "contactus.html"));
 };
 
-
 export const submitContact = (req, res) => {
   const { name, email } = req.body;
   const contactData = { name, email };
 
-  fs.appendFileSync("contacts.json", JSON.stringify(contactData) + "\n");
+  writeContact(contactData);
   res.redirect("/success");
 };
 
